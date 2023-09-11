@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "201131700076",
+    "project_id": "lsproject2",
+    "storage_bucket": "lsproject2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:201131700076:android:fe905d5ac56e5ed1bdcd49",
+        "android_client_info": {
+          "package_name": "com.example.lsproject2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAgkzAIsmssvoxrhea_RR3PRhdNF65Psbk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
