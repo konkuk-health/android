@@ -18,6 +18,12 @@
         android:theme="@style/Theme.LSProject2"
         tools:targetApi="31">
         <activity
+            android:name=".PersonListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".InputNumberActivity"
+            android:exported="false" />
+        <activity
             android:name=".beauty.FaceDectionActivity"
             android:exported="true" />
         <activity
@@ -34,9 +40,7 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true" />
     </application>
 
 </manifest>

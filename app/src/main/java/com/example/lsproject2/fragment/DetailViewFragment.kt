@@ -12,15 +12,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.lsproject2.R
-import com.example.lsproject2.databinding.FragmentDetailBinding
+import com.example.lsproject2.databinding.FragmentDetailViewBinding
 import com.example.lsproject2.databinding.ItemDetailBinding
 import com.example.lsproject2.model.ContentModel
+import com.example.lsproject2.model.FollowModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 
 class DetailViewFragment : Fragment() {
-    lateinit var binding : FragmentDetailBinding
+    lateinit var binding : FragmentDetailViewBinding
     lateinit var firestore : FirebaseFirestore
     lateinit var uid : String
     lateinit var auth : FirebaseAuth
@@ -31,11 +32,16 @@ class DetailViewFragment : Fragment() {
     ): View? {
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_detail,container,false)
-        uid = FirebaseAuth.getInstance().uid!!
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_detail_view,container,false)
+        uid = FirebaseAuth.getInstance().currentUser?.uid!!
+        firestore.collection("users").document(uid).get().addOnSuccessListener { result ->
+            var followModel = result.toObject(FollowModel::class.java)
+           // if (followModel?.followings?.keys != null && followModel.followings.keys.size > 0) {
 
                 binding.detailviewRecyclerveiw.adapter = DetailviewRecyclerviewAdapter()
                 binding.detailviewRecyclerveiw.layoutManager = LinearLayoutManager(activity)
+           // }
+        }
 
         return binding.root
     }
@@ -78,17 +84,57 @@ class DetailViewFragment : Fragment() {
             viewHolder.profileTextview.text = contentModel.userId
             viewHolder.likeTextview.text = "Likes " + contentModel.favoriteCount
             viewHolder.explainTextview.text = contentModel.explain
-            //상대방 유저페이지 이동
+            viewHolder.favoriteImageview.setOnClickListener {
+                eventFavorite(position)
+            }
+
+            viewHolder.profileTextview.setOnClickListener {
+                var userFragment = UserFragment()
+                var bundle = Bundle()
+                bundle.putString("dUid",contentModel.uid)
+                bundle.putString("userId",contentModel.userId)
+                userFragment.arguments = bundle
+                activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.main_content,userFragment)?.commit()
+
+            }
 
             Glide.with(holder.itemView.context).load(contentModel.imageUrl).into(viewHolder.contentImageview)
 
-
+            if(contentModel.favorites.containsKey(uid)){
+                //이미 좋아요를 누른상태
+                viewHolder.favoriteImageview.setImageResource(R.drawable.ic_favorite)
+            }else{
+                viewHolder.favoriteImageview.setImageResource(R.drawable.ic_favorite_border)
+            }
         }
 
 
         override fun getItemCount(): Int {
 
             return contentModels.size
+        }
+
+        fun eventFavorite(position : Int){
+            var docId = contentUidsList[position]
+            var tsDoc = firestore.collection("images").document(docId)
+            firestore.runTransaction {
+                    transition ->
+                var contentDTO = transition.get(tsDoc).toObject(ContentModel::class.java)
+                if(contentDTO!!.favorites.containsKey(uid)){
+                    //좋아요 누른 상태
+                    contentDTO.favoriteCount = contentDTO.favoriteCount - 1
+                    contentDTO.favorites.remove(uid)
+
+                }else{
+                    //좋아요를 누르지 않은 상태
+                    contentDTO.favoriteCount = contentDTO.favoriteCount + 1
+                    contentDTO.favorites[uid] = true
+                    //favorteAlarm(contentDTO.uid!!)
+
+                }
+                transition.set(tsDoc,contentDTO)
+            }
+
         }
 
     }

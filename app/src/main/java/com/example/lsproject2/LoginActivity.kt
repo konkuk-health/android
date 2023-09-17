@@ -21,13 +21,16 @@ class LoginActivity : AppCompatActivity() {
         binding.emailLoginButton.setOnClickListener {
             signinAndSignup()
         }
+        binding.findIdPasswordButton.setOnClickListener {
+            signinEmail()
+        }
     }
 
     fun signinAndSignup() {
         auth?.createUserWithEmailAndPassword(binding.edittextId.text.toString(), binding.edittextPassword.text.toString())?.addOnCompleteListener {
                 task ->
             if (task.isSuccessful) {
-                moveMainPage(task.result.user)
+                //moveMainPage(task.result.user)
                 //아이디 만들기
             } else if(!task.exception?.message.isNullOrEmpty()) {
                 //에러메시지만 출력
@@ -62,4 +65,12 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
         }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        //callbackManager.onActivityResult(requestCode,resultCode,data)
+    }
+
+
+
 }
